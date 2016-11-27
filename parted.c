@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     }
     FILE *fp = fopen(filename, "r");
     if (!fp) {
-        fprintf(stderr, "failed to open mbr.img\n");
+        fprintf(stderr, "failed to open file [%s]\n", filename);
         exit(-1);
     }
 
