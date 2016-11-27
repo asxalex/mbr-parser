@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef MODIFY
+#include <string.h>
+#endif
 
 #pragma pack(1)
 
@@ -84,6 +87,35 @@ int main(int argc, char *argv[]) {
     }
     // 0x55aa
     printf("%x%x\n", mbr.end_flag[0], mbr.end_flag[1]);
+
+#ifdef MODIFY
+    /* try to change the mbr's partition table
+     * all the partitions are primary partition */
+    FILE *target = fopen("result", "w");
+    if (!target) {
+        fprintf(stderr, "failed to open the file result\n");
+    }  else {
+        // write the bootloader
+        fwrite(mbr.program, PROG_LENGTH, 1, target);
+
+        // calculate the partition 3
+        mbr.partition[2].end = mbr.partition[3].end;
+        mbr.partition[2].sector_num += mbr.partition[3].sector_num;
+
+        // zeor-rize the partition 4
+        memset(&(mbr.partition[3]), '\0', sizeof(partition_t));
+
+        // keep the first two partition unchanged.
+        // while add partition 4 to partition 3,
+        // and change the partition 4 to all-zero
+        fwrite(mbr.partition, sizeof(partition_t), 4, target);
+        
+        // write the 0x55aa
+        fwrite(mbr.end_flag, sizeof(char), 2, target);
+
+        fclose(target);
+    }
+#endif
 
     // dump the bootloader, for future use
     fp = fopen("bootloader.obj", "w");

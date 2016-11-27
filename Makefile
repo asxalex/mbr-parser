@@ -12,5 +12,8 @@ CC=gcc
 all:
 	$(CC) -o $(TARGET) $(SOURCE)
 
+modify:
+	$(CC) -DMODIFY -o $(TARGET) $(SOURCE)
+
 # vim:ft=make
 #
